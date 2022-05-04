@@ -2,7 +2,10 @@
 
 namespace NasaNeoApiClient
 {
-    public interface INeoApiClient{}
+    public interface INeoApiClient
+    {
+        Task<string> getFeedRange(string begin);
+    }
     public class NeoApiClient : INeoApiClient
     {
         private string urlBase = "https://api.nasa.gov/neo/rest/v1/";
@@ -11,14 +14,15 @@ namespace NasaNeoApiClient
         {
 
         }
-        public async Task<string> getFeedRange(string begin, string? end)
+        public async Task<string> getFeedRange(string begin)
         {
             Dictionary<string, string> headers = new Dictionary<string, string>();
             headers.Add("startDate", begin);
-            if (!string.IsNullOrEmpty(end))
-            {
-                headers.Add("endDate", end);
-            }
+            //The API sets a week treshold by default if endDate is not present
+            //if (!string.IsNullOrEmpty(end))
+            //{
+            //    headers.Add("endDate", end);
+            //}
             string jsonResponse = await requestApi("feed", headers);
             return jsonResponse;
         }
