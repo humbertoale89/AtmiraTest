@@ -1,9 +1,11 @@
 using NasaNeoApiClient;
+using TopNeo;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<INeoApiClient, NeoApiClient>();
+builder.Services.AddScoped<ITopNeo, TopNeoFromRange>();
     
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
