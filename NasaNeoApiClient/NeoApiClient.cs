@@ -1,4 +1,5 @@
 ﻿using RestSharp;
+using Newtonsoft.Json.Linq;
 
 namespace NasaNeoApiClient
 {
@@ -23,8 +24,7 @@ namespace NasaNeoApiClient
             //{
             //    headers.Add("endDate", end);
             //}
-            string jsonResponse = await requestApi("feed", headers);
-            return jsonResponse;
+            return await requestApi("feed", headers);
         }
 
         private async Task<string> requestApi(string endpoint, Dictionary<string,string> paramSet)

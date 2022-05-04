@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using NasaNeoApiClient;
-using Newtonsoft.Json.Linq;
-using RestSharp;
+﻿using Microsoft.AspNetCore.Mvc;
+using TopNeo.Models;
+using TopNeo;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
+using AtmiraTest.Models;
+using System.Text.Json;
 
 namespace AtmiraTest.Controllers
 {
@@ -10,21 +14,17 @@ namespace AtmiraTest.Controllers
     [ApiController]
     public class AsteroidsController : ControllerBase
     {
-        private readonly NeoApiClient _nasaNeoApiClient;
-        public AsteroidsController(INeoApiClient apiClient)
+        private readonly ITopNeo _topNeo ;
+        public AsteroidsController(ITopNeo topNeo)
         {
-            _nasaNeoApiClient = (NeoApiClient) apiClient;
+            _topNeo = (TopNeoFromRange) topNeo;
         }
         [HttpGet("{planet}")]
-        public async Task<IActionResult> Asteroids([FromRoute] string planet)
+        public async Task<string> Asteroids([FromRoute] string planet)
         {
-            var startDate = DateTime.Now.ToString("yyyy-MM-dd");
-            string jsonObj = await _nasaNeoApiClient.getFeedRange(startDate);
-            //var client = new RestClient($"https://api.nasa.gov/neo/rest/v1/feed?start_date={startDate}&api_key=DEMO_KEY");
-            //RestResponse response = await client.ExecuteAsync(new RestRequest());
-            //string jsonObj = response.Content;
-            var deserializedObj = JObject.Parse(jsonObj);
-            return Ok();
+            List<Asteroid> topList = await _topNeo.TopByPlanet(planet);
+            string topJson = JsonSerializer.Serialize( topList.Select(ca => new CustomAsteroid(ca.Name, ca.EstimatedDiameterKm, ca.CadHistory.FirstOrDefault().CadRelativeVelocityKmH, ca.CadHistory.FirstOrDefault().CadDate, ca.CadHistory.FirstOrDefault().CadOrbitingBody)) );
+            return topJson;
         }
     }
 }
