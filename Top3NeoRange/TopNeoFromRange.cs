@@ -25,7 +25,7 @@ namespace TopNeo
         {
             var startDate = DateTime.Now.ToString("yyyy-MM-dd");
             //By default the feed endpoint set a week range if endDate is mising
-            NeoRequestObj neoReqObj = new NeoRequestObj(JObject.Parse(await _nasaNeoApiClient.getFeedRange(startDate)));
+            _requestObj = new NeoRequestObj(JObject.Parse(await _nasaNeoApiClient.getFeedRange(startDate)));
             IEnumerable<Asteroid> neoAll = GetNeoAll().AsQueryable().OrderByDescending(n => n.EstimatedDiameterKm);
             IEnumerable<Asteroid> neoTopPlanet = neoAll.Where(n => n.IsPotentiallyHazardous == true && n.CadHistory.Any(ac => ac.CadOrbitingBody.ToLower() == planet.ToLower())).OrderByDescending(n=> n.EstimatedDiameterKm);
             if(neoTopPlanet.Count() > 2)
@@ -36,10 +36,10 @@ namespace TopNeo
             IEnumerable<Asteroid> neoTop = neoAll.Where(n => n.IsPotentiallyHazardous == true).OrderByDescending(n => n.EstimatedDiameterKm);
             if (neoTop.Count() > missingCount-1)
             {
-                return neoTopPlanet.Concat(neoTopPlanet.Take(missingCount)).ToList();
+                return neoTopPlanet.Concat(neoTop.Take(missingCount)).ToList();
             }
             missingCount = 3 - neoTopPlanet.Count()+neoTop.Count();           
-            return neoTopPlanet.Concat(neoTopPlanet.Take(missingCount)).Concat(neoAll.Take(missingCount)).ToList();
+            return neoTopPlanet.Concat(neoTop.Take(missingCount)).Concat(neoAll.Take(missingCount)).ToList();
         }
 
         private List<Asteroid> GetNeoAll()
